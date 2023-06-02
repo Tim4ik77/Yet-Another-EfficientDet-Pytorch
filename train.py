@@ -122,14 +122,14 @@ def train(opt):
                                         A.ToGray(always_apply=True),
                                         A.CLAHE(always_apply=True, clip_limit=5),
                                       ], p = 0.4),
-                                      A.Normalize(mean=params.mean, std=params.std)], bbox_params=A.BboxParams(format='coco', min_visibility=0.5)))
+                                      A.Normalize(mean=params.mean, std=params.std)], bbox_params=A.BboxParams(format='pascal_voc', min_visibility=0.5)))
     training_generator = DataLoader(training_set, **training_params)
 
     val_set = CocoDataset(root_dir=os.path.join(opt.data_path, params.project_name), set=params.val_set,
                           transform=A.Compose([
                                         A.Normalize(mean=params.mean, std=params.std),
                                         A.RandomCrop(width=input_sizes[opt.compound_coef], height=input_sizes[opt.compound_coef]),
-                                 ], bbox_params=A.BboxParams(format='coco', min_visibility=0.5)))
+                                 ], bbox_params=A.BboxParams(format='pascal_voc', min_visibility=0.5)))
     val_generator = DataLoader(val_set, **val_params)
 
     model = EfficientDetBackbone(num_classes=len(params.obj_list), compound_coef=opt.compound_coef,
