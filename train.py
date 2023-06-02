@@ -117,11 +117,6 @@ def train(opt):
                                       A.Rotate(limit=90, p=0.5),
                                       A.HorizontalFlip(p=0.3),
                                       A.RandomBrightness(p=0.3, limit=(-0.2, 0.2)),
-                                      A.OneOf([
-                                        A.Blur(blur_limit=5, always_apply=True),
-                                        A.ToGray(always_apply=True),
-                                        A.CLAHE(always_apply=True, clip_limit=5),
-                                      ], p = 0.4),
                                       A.Normalize(mean=params.mean, std=params.std)], bbox_params=A.BboxParams(format='pascal_voc', min_visibility=0.5)))
     training_generator = DataLoader(training_set, **training_params)
 
