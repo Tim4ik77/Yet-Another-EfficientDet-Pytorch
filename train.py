@@ -22,6 +22,27 @@ from efficientdet.loss import FocalLoss
 from utils.sync_batchnorm import patch_replication_callback
 from utils.utils import replace_w_sync_bn, CustomDataParallel, get_last_weights, init_weights, boolean_string
 
+data_transforms = {
+    'train': A.Compose([
+              A.RandomCrop(width=image_size, height=image_size),
+              A.Rotate(limit=90, p=0.5),
+              A.HorizontalFlip(p=0.3),
+              A.RandomBrightness(p=0.3, limit=(-0.2, 0.2)),
+              A.OneOf([
+                A.Blur(blur_limit=5, always_apply=True),
+                A.ToGray(always_apply=True),
+                A.CLAHE(always_apply=True, clip_limit=5),
+              ], p = 0.4),
+              A.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225],
+    )
+          ], bbox_params=A.BboxParams(format='coco', min_visibility=0.5, label_fields=['class_labels'])),
+    'val': A.Compose([
+              A.RandomCrop(width=image_size, height=image_size),
+          ], bbox_params=A.BboxParams(format='coco', min_visibility=0.5, label_fields=['class_labels'])),
+}
+
 
 class Params:
     def __init__(self, project_file):
@@ -111,14 +132,30 @@ def train(opt):
 
     input_sizes = [512, 640, 768, 896, 1024, 1280, 1280, 1536, 1536]
     training_set = CocoDataset(root_dir=os.path.join(opt.data_path, params.project_name), set=params.train_set,
-                               transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
-                                                             Augmenter(),
-                                                             Resizer(input_sizes[opt.compound_coef])]))
+                               transform=A.Compose([
+                                      A.RandomCrop(width=image_size, height=image_size),
+                                      A.Rotate(limit=90, p=0.5),
+                                      A.HorizontalFlip(p=0.3),
+                                      A.RandomBrightness(p=0.3, limit=(-0.2, 0.2)),
+                                      A.OneOf([
+                                        A.Blur(blur_limit=5, always_apply=True),
+                                        A.ToGray(always_apply=True),
+                                        A.CLAHE(always_apply=True, clip_limit=5),
+                                      ], p = 0.4),
+                                      A.Normalize(
+                                        mean=[0.485, 0.456, 0.406],
+                                        std=[0.229, 0.224, 0.225],
+                                    )], bbox_params=A.BboxParams(format='coco', min_visibility=0.5, label_fields=['class_labels'])))
     training_generator = DataLoader(training_set, **training_params)
 
     val_set = CocoDataset(root_dir=os.path.join(opt.data_path, params.project_name), set=params.val_set,
-                          transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
-                                                        Resizer(input_sizes[opt.compound_coef])]))
+                          transform=transforms.Compose(A.Compose([
+                                                        A.Normalize(
+                                                            mean=[0.485, 0.456, 0.406],
+                                                            std=[0.229, 0.224, 0.225],
+                                                        )
+                                                        A.RandomCrop(width=image_size, height=image_size),
+                                                 ], bbox_params=A.BboxParams(format='coco', min_visibility=0.5, label_fields=['class_labels'])))
     val_generator = DataLoader(val_set, **val_params)
 
     model = EfficientDetBackbone(num_classes=len(params.obj_list), compound_coef=opt.compound_coef,
