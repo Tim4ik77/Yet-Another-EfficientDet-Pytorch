@@ -13,7 +13,7 @@ import webcolors
 from torch import nn
 from torch.nn.init import _calculate_fan_in_and_fan_out, _no_grad_normal_
 from torchvision.ops.boxes import batched_nms
-
+import matplotlib.pyplot as plt
 from utils.sync_batchnorm import SynchronizedBatchNorm2d
 
 
@@ -143,8 +143,8 @@ def display(preds, imgs, obj_list, imshow=True, imwrite=False):
             plot_one_box(imgs[i], [x1, y1, x2, y2], label=obj, score=score,
                          color=color_list[get_index_label(obj, obj_list)])
         if imshow:
-            cv2.imshow('img', imgs[i])
-            cv2.waitKey(0)
+            plt.imshow(imgs[i])
+            plt.show()
 
         if imwrite:
             os.makedirs('test/', exist_ok=True)
