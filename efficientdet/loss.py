@@ -174,6 +174,7 @@ class FocalLoss(nn.Module):
                               0.5, 0.3)
             imgs = imgs.permute(0, 2, 3, 1).cpu().numpy()
             imgs = ((imgs * [0.229, 0.224, 0.225] + [0.485, 0.456, 0.406]) * 255).astype(np.uint8)
+            print(imgs)
             imgs = [cv2.cvtColor(img, cv2.COLOR_RGB2BGR) for img in imgs]
             display(out, imgs, obj_list, imshow=True, imwrite=False)
 
