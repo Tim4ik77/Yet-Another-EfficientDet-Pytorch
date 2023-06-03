@@ -116,14 +116,12 @@ def train(opt):
                                       A.RandomCrop(width=input_sizes[opt.compound_coef], height=input_sizes[opt.compound_coef]),
                                       A.Rotate(limit=90, p=0.5),
                                       A.HorizontalFlip(p=0.3),
-                                      A.RandomBrightness(p=0.3, limit=(-0.2, 0.2)),
-                                      A.Normalize(mean=params.mean, std=params.std),], bbox_params=A.BboxParams(format='pascal_voc', min_visibility=0.5)))
+                                      A.RandomBrightness(p=0.3, limit=(-0.2, 0.2))], bbox_params=A.BboxParams(format='pascal_voc', min_visibility=0.5)))
     training_generator = DataLoader(training_set, **training_params)
 
     val_set = CocoDataset(root_dir=os.path.join(opt.data_path, params.project_name), set=params.val_set,
                           transform=A.Compose([
                                         A.RandomCrop(width=input_sizes[opt.compound_coef], height=input_sizes[opt.compound_coef]),
-                                        A.Normalize(mean=params.mean, std=params.std),
                                  ], bbox_params=A.BboxParams(format='pascal_voc', min_visibility=0.5)))
     val_generator = DataLoader(val_set, **val_params)
 
